@@ -10,13 +10,9 @@ import (
 	"github.com/yhuet/aggregator/internal/database"
 )
 
-func handlerAddfeed(s *state, cmd command) error {
+func handlerAddfeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) < 2 {
 		return errors.New("usage: addfeed <name> <url>")
-	}
-	currentUser, err := s.db.GetUser(context.Background(), s.conf.CurrentUserName)
-	if err != nil {
-		return err
 	}
 	currentTime := time.Now()
 	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
@@ -25,7 +21,7 @@ func handlerAddfeed(s *state, cmd command) error {
 		UpdatedAt: currentTime,
 		Name:      cmd.args[0],
 		Url:       cmd.args[1],
-		UserID:    currentUser.ID,
+		UserID:    user.ID,
 	})
 	if err != nil {
 		return err
@@ -36,7 +32,7 @@ func handlerAddfeed(s *state, cmd command) error {
 		ID:        uuid.New(),
 		CreatedAt: currentTime,
 		UpdatedAt: currentTime,
-		UserID:    currentUser.ID,
+		UserID:    user.ID,
 		FeedID:    feed.ID,
 	})
 	if err != nil {
