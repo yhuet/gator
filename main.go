@@ -29,6 +29,7 @@ func main() {
 	commands.register("addfeed", middlewareLoggedIn(handlerAddfeed))
 	commands.register("feeds", handlerFeeds)
 	commands.register("follow", middlewareLoggedIn(handlerFollow))
+	commands.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 	commands.register("following", middlewareLoggedIn(handlerFollowing))
 
 	cfg, err := config.Read()
