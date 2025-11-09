@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
-	"fmt"
+	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/yhuet/gator/internal/database"
 )
 
@@ -39,17 +41,31 @@ func scrapeFeeds(s *state) error {
 	if err != nil {
 		return err
 	}
+	log.Printf("Fetching posts from feed: %s\n", feed.Name)
 	data, err := fetchFeed(context.Background(), feed.Url)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("feed %s:\n", data.Channel.Title)
-	for i, item := range data.Channel.Item {
-		fmt.Println(item.Title, "<", item.Link, ">")
-		if i > 8 {
-			break
+	log.Printf("Found %d posts\n", len(data.Channel.Item))
+	currentTime := time.Now()
+	for _, item := range data.Channel.Item {
+		publishedAt, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			log.Println(err)
+		}
+		_, err = s.db.CreatePost(context.Background(), database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   currentTime,
+			UpdatedAt:   currentTime,
+			Title:       item.Title,
+			Url:         item.Link,
+			Description: sql.NullString{String: item.Description, Valid: true},
+			PublishedAt: sql.NullTime{Time: publishedAt, Valid: true},
+			FeedID:      feed.ID,
+		})
+		if err != nil {
+			log.Printf("error: %+v\n", err)
 		}
 	}
-	fmt.Println("==============================")
 	return nil
 }
