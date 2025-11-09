@@ -1,4 +1,4 @@
-module github.com/yhuet/aggregator
+module github.com/yhuet/gator
 
 go 1.25.2
 

@@ -7,8 +7,8 @@ import (
 	"os"
 
 	_ "github.com/lib/pq"
-	"github.com/yhuet/aggregator/internal/config"
-	"github.com/yhuet/aggregator/internal/database"
+	"github.com/yhuet/gator/internal/config"
+	"github.com/yhuet/gator/internal/database"
 )
 
 type state struct {
